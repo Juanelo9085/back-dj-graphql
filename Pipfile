@@ -1,0 +1,24 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+autopep8 = "*"
+
+[packages]
+django = "*"
+graphene = "*"
+django-filter = "*"
+django-graphql-jwt = "*"
+psycopg2 = "*"
+
+[requires]
+python_version = "3.7"
+
+[scripts]
+server = "python manage.py runserver"
+mkmigrations = "python manage.py makemigrations"
+migrate = "python manage.py migrate"
+app = "python manage.py startapp"
+mksuser = "python manage.py createsuperuser"
