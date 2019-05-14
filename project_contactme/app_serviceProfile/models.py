@@ -45,11 +45,13 @@ class Address(models.Model):
 
 class serviceProvider(models.Model):
   user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-  category = models.ForeignKey(Category, on_delete=models.CASCADE)
+  category = models.ForeignKey('Category', on_delete=models.CASCADE)
   isActive = models.IntegerField()
   description = models.TextField()
 
-
+class Vote(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    category = models.ForeignKey('Category', related_name='votes', on_delete=models.CASCADE)
 #Sección para tabajos previos
 #class previousJobs (models.Model):
 

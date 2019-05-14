@@ -1,5 +1,7 @@
 import graphene
 from graphene_django import DjangoObjectType
+from graphql import GraphQLError    # Manejor de errores
+from django.db.models import Q      # Para filtrar
 
 from .models import Category
 from .models import personData
@@ -28,15 +30,38 @@ class serviceProviderType(DjangoObjectType):
 class Query(graphene.ObjectType):
     categories = graphene.List(CategoryType)
 
+    #Agregando paginación
+    providers = graphene.List(
+        personDataType,
+        search=graphene.String(),
+        first=graphene.Int(),
+        skip=graphene.Int(),    
+    )
+    
     def resolve_categories(self, info, **kwargs):
         return Category.objects.all()
-'''
-class Query(graphene.ObjectType):
-    people = graphene.List(personDataType)
 
-    def resolve_people(self, info, **kwargs):
-        return personData.objects.all()
-'''
+    #Agregando un campo de búsqueda (parámetro search) y paginación (parámetros first, skip)
+    def resolve_providers(self, info, search=None, first=None, skip=None, **kwargs):
+        # El valor enviado con el parámetro de búsqueda estará en la variable args
+        # Agregando un queryset
+        qs = personData.objects.all()
+
+        if search:
+            filter = (
+                Q(first_name__icontains=search) |
+                Q(last_name__icontains=search)
+            )
+            qs = qs.filter(filter)
+
+        if skip:
+            qs = qs[skip:]
+
+        if first:
+            qs = qs[:first]
+
+        return qs
+
 # ========== Mutations ==========
 
 class createPerson(graphene.Mutation):
@@ -147,7 +172,33 @@ class createServiceProvider(graphene.Mutation):
             description = provider.description,
         )
 
+# Add the CreateVote mutation
+class CreateVote(graphene.Mutation):
+    user = graphene.Field(UserType)
+    category = graphene.Field(CategoryType)
+
+    class Arguments:
+        category_id = graphene.Int()
+
+    def mutate(self, info, category_id):
+        user = info.context.user
+        if user.is_anonymous:
+            raise GraphQLError('¡Debes estar registrado para votar!')
+
+        category = category.objects.filter(id=category_id).first()
+        if not category:
+            raise Exception('Categoría inválida!')
+
+        Vote.objects.create(
+            user=user,
+            category=category,
+        )
+
+        return CreateVote(user=user, category=category)
+
+# Add the mutation to the Mutation class
 class Mutation(graphene.ObjectType):
     create_person = createPerson.Field()
     create_address = createAddress.Field()
     create_serviceProvider = createServiceProvider.Field()
+    create_vote = CreateVote.Field()
