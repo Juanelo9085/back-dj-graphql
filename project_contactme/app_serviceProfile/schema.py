@@ -28,21 +28,21 @@ class serviceProviderType(DjangoObjectType):
 
 # ========== Queries ==========
 class Query(graphene.ObjectType):
-    categories = graphene.List(CategoryType)
+    getCategories = graphene.List(CategoryType)
 
     #Agregando paginación
-    providers = graphene.List(
+    getProviders = graphene.List(
         personDataType,
         search=graphene.String(),
         first=graphene.Int(),
         skip=graphene.Int(),    
     )
     
-    def resolve_categories(self, info, **kwargs):
+    def resolve_getCategories(self, info, **kwargs):
         return Category.objects.all()
 
     #Agregando un campo de búsqueda (parámetro search) y paginación (parámetros first, skip)
-    def resolve_providers(self, info, search=None, first=None, skip=None, **kwargs):
+    def resolve_getProviders(self, info, search=None, first=None, skip=None, **kwargs):
         # El valor enviado con el parámetro de búsqueda estará en la variable args
         # Agregando un queryset
         qs = personData.objects.all()

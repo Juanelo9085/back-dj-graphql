@@ -8,9 +8,7 @@ class UserType(DjangoObjectType):
     class Meta:
         model = get_user_model()
 
-# Query, recuperar usuario
-
-
+# ========== Mutations ==========
 class CreateUser(graphene.Mutation):
     user = graphene.Field(UserType)
 
@@ -35,14 +33,14 @@ class CreateUser(graphene.Mutation):
 class Mutation(graphene.ObjectType):
     create_user = CreateUser.Field()
 
+
+# ========== Queries ==========
 # Query, recuperar usuario
-
-
 class Query(graphene.ObjectType):
-    users = graphene.List(UserType)
+    getUsers = graphene.List(UserType)
     me = graphene.Field(UserType)
 
-    def resolve_users(self, info):
+    def resolve_getUsers(self, info):
         return get_user_model().objects.all()
     
     def resolve_me(self, info):
